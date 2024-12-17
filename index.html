@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pembelajaran Tata Surya</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .container {
+      display: flex;
+      padding-top: 3%;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+      height: 40%;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+
+    canvas {
+      border: 1px solid white;
+      flex-grow: 1;
+      max-height: 100%;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    .indicators {
+      width: 28%;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      z-index: 10;
+      border-radius: 10px;
+    }
+
+    .indicator {
+      margin: 5px 0;
+    }
+
+    #speedSlider {
+      width: 100%;
+    }
+
+    .reset-btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+      text-align: center;
+      /* Ensure text is centered */
+    }
+
+    .reset-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .time-unit-indicator {
+      position: absolute;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 5px;
+      border-radius: 5px;
+    }
+
+    @media (max-width: 800px) {
+      .container {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+      }
+
+      canvas {
+        max-height: 60%;
+        width: 99%;
+        margin-bottom: 20px;
+      }
+
+      .indicators {
+        width: 100%;
+        margin-top: 20px;
+      }
+
+      #speedSlider {
+        width: 100%;
+      }
+
+      .reset-btn {
+        font-size: 12px;
+        width: 100px;
+      }
+
+      .time-unit-indicator {
+        top: auto;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .indicators {
+        font-size: 14px;
+      }
+
+      #speedSlider {
+        width: 180px;
+      }
+
+      .reset-btn {
+        font-size: 10px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      #speedSlider {
+        width: 150px;
+      }
+
+      .reset-btn {
+        font-size: 8px;
+      }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background-color: #101820;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-image: url('Galaxy.png');
+      background-attachment: fixed;
+      background-position: center;
+      background-size: cover;
+      overflow-x: hidden;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    #intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #101820;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: introZoom 2s ease-in-out forwards;
+    }
+
+    #intro h1 {
+      font-size: 8vw;
+      color: #fff;
+      text-align: center;
+    }
+
+    #intro h1 span {
+      color: #FFD700;
+    }
+
+    @keyframes introZoom {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.5);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      #intro h1 {
+        font-size: 10vw;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      #intro h1 {
+        font-size: 12vw;
+      }
+    }
+
+    @keyframes introZoom {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.5);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    header {
+      position: fixed;
+      width: 100%;
+      top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1E293B;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      z-index: 9999;
+    }
+
+    header .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #FFD700;
+    }
+
+    header nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+    }
+
+    header nav button {
+      color: #fff;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    header nav button:hover {
+      text-decoration: underline;
+    }
+
+    @media screen and (max-width: 768px) {
+      header {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      header nav {
+        margin-left: auto;
+        margin-right: auto;
+        flex-direction: row;
+        gap: 10px;
+      }
+
+      header nav button {
+        padding: 10px;
+        text-decoration: underline;
+      }
+    }
+
+    .about {
+      display: flex;
+      align-items: center;
+      padding: 50px;
+      padding-top: 5%;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .about .text {
+      flex: 6;
+      text-align: justify;
+    }
+
+    .about .image {
+      flex: 4;
+      overflow: hidden;
+    }
+
+    .about .image img {
+      width: 100%;
+      border-radius: 10px;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .about .image img:hover {
+      transform: scale(1.1);
+    }
+
+    @media screen and (max-width: 768px) {
+      #about {
+        padding-top: 80px;
+        /* Adjust this value as needed */
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      #about {
+        padding-top: 100px;
+        /* Adjust this value as needed for smaller devices */
+      }
+    }
+
+    .planets {
+      padding: 30px 20px;
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(1px);
+    }
+
+    .planets h2 {
+      margin-bottom: 20px;
+      color: #FFD700;
+      text-align: center;
+    }
+
+    .planet-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .planet {
+      display: flex;
+      background: rgba(30, 41, 59, 0.7);
+      padding: 15px;
+      border-radius: 10px;
+      gap: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      width: 100%;
+    }
+
+    .planet img {
+      flex: 3;
+      border-radius: 10px;
+      width: 50%;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .planet img:hover {
+      transform: scale(1.05);
+    }
+
+    .planet .details {
+      flex: 7;
+    }
+
+    .planet button {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background: #FFD700;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .planet button:hover {
+      background: #E5C100;
+      transform: scale(1.05);
+    }
+
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      animation: fadeIn 0.5s forwards;
+    }
+
+    .popup.hidden {
+      animation: fadeOut 0.5s forwards;
+    }
+
+    .popup-content {
+      display: flex;
+      background: #1E293B;
+      padding: 20px;
+      border-radius: 10px;
+      gap: 20px;
+      width: 80%;
+      max-height: 80%;
+      overflow-y: auto;
+      opacity: 0;
+      animation: contentFadeIn 0.5s 0.2s forwards;
+    }
+
+    .popup-content .image {
+      flex: 4;
+    }
+
+    .popup-content .image img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .popup-content .info {
+      flex: 6;
+      text-align: justify;
+    }
+
+    .popup-content button {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background: #FFD700;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        visibility: visible;
+      }
+
+      100% {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+
+    @keyframes fadeOut {
+      0% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    @keyframes contentFadeIn {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #1E293B;
+    }
+
+    footer a {
+      color: #FFD700;
+      text-decoration: none;
+    }
+
+    @media screen and (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .about {
+        padding: 20px;
+      }
+
+      .about .text {
+        flex: 1;
+      }
+
+      .about .image {
+        flex: 1;
+        margin-top: 20px;
+      }
+
+      .planet {
+        flex-direction: column;
+      }
+
+      .planet img {
+        width: 100%;
+      }
+
+      .popup-content {
+        flex-direction: column;
+      }
+
+      .popup-content .image,
+      .popup-content .info {
+        flex: 1;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      #intro h1 {
+        font-size: 2rem;
+      }
+
+      header .logo {
+        font-size: 1.2rem;
+      }
+
+      header nav a {
+        font-size: 0.9rem;
+      }
+
+      .about {
+        padding: 10px;
+      }
+
+      .about .text {
+        font-size: 0.9rem;
+      }
+
+      .planet button {
+        padding: 6px 12px;
+      }
+
+      footer a {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="intro">
+    <h1>Selamat Datang di <span>SolarEd</span></h1>
+  </div>
+  <header>
+    <div class="logo">SolarEd</div>
+    <nav>
+      <button style="background-color: transparent; color: white;" onclick="showPopup('Solar')">Tentang Tata Surya</button>
+      <button style="background-color: transparent; color: white;" onclick="showPopup('Tentang')">Tentang</button>
+    </nav>
+  </header>
+  <main>
+    <section id="about" class="about">
+      <div class="text" style="background: rgba(30, 41, 59, 0.7); padding: 5%; border-radius: 10px;">
+        <h1>Tata Surya</h1>
+        <div">
+          <p> Pelajari keajaiban Tata Surya kita, dari Matahari yang memancarkan cahaya hingga planet-planet yang mengelilinginya. Temukan fakta menarik dan pengetahuan baru tentang delapan planet utama yang ada di Tata Surya. </p>
+      </div>
+      </div>
+      <div class="image">
+        <img src="Solar.png" alt="Tata Surya">
+      </div>
+    </section>
+    <section id="planets" class="planets">
+      <h2>
+        <center>Matahari</center>
+      </h2>
+      <div class="planet">
+        <img src="SolarSystem.png" alt="Matahari">
+        <div class="details">
+          <p align="justify">Matahari adalah bintang pusat dari Tata Surya yang terletak di koordinat galaksi sekitar 26.000 tahun cahaya dari pusat Bima Sakti, tepatnya di dalam lengan Orion. Matahari memiliki massa sekitar 1,99 × 10^30 kg, yang setara dengan lebih dari 99% total massa Tata Surya, dan diameter sekitar 1,39 juta kilometer, sekitar 109 kali diameter Bumi. Suhu permukaan Matahari, yang disebut fotosfer, adalah sekitar 5.500°C, sementara suhu inti Matahari bisa mencapai lebih dari 15 juta°C. Matahari memiliki luminositas, atau kecerahan total, sebesar 3,846 × 10^26 watt, yang memberikan cahaya dan energi yang mendukung kehidupan di Bumi. Matahari berputar pada porosnya, dengan periode rotasi sekitar 25 hari di ekuator dan 35 hari di dekat kutub, karena Matahari adalah bintang gas raksasa yang tidak memiliki permukaan padat. Matahari juga memiliki medan magnet yang kuat, yang menghasilkan siklus matahari sekitar 11 tahun, yang menyebabkan fluktuasi aktivitas magnetik, termasuk fleksur matahari dan ejecksi massa korona. Koordinat Matahari dalam ruang angkasa juga dipengaruhi oleh gerakan galaksi, dan Matahari bergerak dengan kecepatan sekitar 828.000 km/jam mengelilingi pusat Bima Sakti.</p>
+        </div>
+      </div>
+    </section>
+    <section id="planets" class="planets">
+      <h2>Planet di Tata Surya</h2>
+      <div class="planet-grid">
+        <div class="planet">
+          <img src="Mercury.png" alt="Merkurius">
+          <div class="details">
+            <h3>Merkurius</h3>
+            <p align="justify">Merkurius, planet terkecil dan terdekat dengan Matahari dalam tata surya kita, memiliki karakteristik yang unik dan menarik. Karena jaraknya yang dekat dengan Matahari, Merkurius mengalami suhu ekstrem, dengan sisi yang menghadap Matahari mencapai suhu yang sangat tinggi, sedangkan sisi yang tidak menghadap Matahari sangat dingin. Atmosfer Merkurius sangat tipis dan hampir tidak ada, sehingga tidak dapat menahan panas. Planet ini juga memiliki permukaan yang dipenuhi kawah akibat tabrakan asteroid dan komet selama miliaran tahun. Merkurius tidak memiliki satelit alami seperti Bulan dan rotasinya sangat lambat dibandingkan dengan revolusi mengelilingi Matahari. Fenomena menarik lainnya adalah Merkurius terkunci secara tidal dengan Matahari, artinya selalu menunjukkan sisi yang sama ke Matahari. Dengan ukurannya yang kecil dan kondisi lingkungan yang ekstrem, Merkurius menjadi objek yang menarik bagi para astronom untuk dipelajari lebih lanjut.</p>
+            <div class="container">
+              <div class="indicators">
+                <div class="indicator" id="indicator">Mercury Position: 0°</div>
+                <div class="indicator" id="speedIndicator">Speed: 0 km/s</div>
+                <div class="indicator" id="momentumIndicator">Angular Momentum: 0 kg·km²/s</div>
+                <div class="indicator" id="distanceIndicator">Distance: 0 km</div>
+                <label for="speedSlider">Speed Control:</label>
+                <input type="range" id="speedSlider" min="0.1" max="1000000" step="0.1" value="1">
+                <div class="indicator" id="timeUnitIndicator">Speed: 1x</div>
+                <button class="reset-btn" id="resetButton">Reset Speed</button>
+              </div>
+              <canvas id="orbitCanvas"></canvas>
+            </div>
+            <button onclick="showPopup('Merkurius')">Informasi Detail</button>
+          </div>
+        </div>
+        <div class="planet">
+          <img src="Venus.png" alt="Venus">
+          <div class="details">
+            <h3>Venus</h3>
+            <p align="justify">Venus, seringkali disebut sebagai "kembaran" Bumi karena ukuran dan komposisinya yang mirip, namun kondisi di permukaannya sangat berbeda. Sebagai planet terdekat kedua dari Matahari, Venus memiliki suhu permukaan yang sangat panas, bahkan lebih panas daripada Merkurius. Atmosfer Venus sangat tebal dan terdiri hampir seluruhnya dari karbon dioksida, menciptakan efek rumah kaca yang ekstrem. Tekanan atmosfer di permukaan Venus ratusan kali lebih tinggi daripada Bumi, sehingga kondisi di sana sangat tidak ramah bagi kehidupan. Permukaan Venus dipenuhi dengan gunung berapi, lembah dalam, dan dataran tinggi yang luas. Meskipun Venus terlihat sangat cerah di langit Bumi saat terbit atau terbenut, kondisi di permukaannya sangat berbeda dengan Bumi, membuatnya menjadi salah satu planet yang paling menarik dan misterius di tata surya kita.</p>
+            <button onclick="showPopup('Venus')">Informasi Detail</button>
+          </div>
+        </div>
+        <div class="planet">
+          <img src="Earth.png" alt="Bumi">
+          <div class="details">
+            <h3>Bumi</h3>
+            <p align="justify">Bumi, planet ketiga dari Matahari, adalah satu-satunya planet yang diketahui memiliki kehidupan. Sebagai planet kebumian, Bumi memiliki permukaan yang padat dan terdiri dari berbagai macam lanskap seperti gunung, lembah, dataran, dan lautan. Atmosfer Bumi, yang sebagian besar terdiri dari nitrogen dan oksigen, melindungi planet kita dari radiasi berbahaya dan memungkinkan adanya siklus air yang mendukung kehidupan. Bumi memiliki satu satelit alami, yaitu Bulan, yang memengaruhi pasang surut air laut dan stabilitas sumbu rotasi Bumi. Lapisan dalam Bumi terdiri dari inti dalam yang padat, inti luar yang cair, mantel, dan kerak. Aktivitas geologis seperti pergerakan lempeng tektonik dan vulkanisme terus membentuk permukaan Bumi. Kondisi unik Bumi, termasuk jaraknya yang tepat dari Matahari, keberadaan air dalam bentuk cair, dan atmosfer yang kaya oksigen, telah menciptakan lingkungan yang memungkinkan berkembangnya berbagai macam kehidupan.</p>
+            <button onclick="showPopup('Bumi')">Informasi Detail</button>
+          </div>
+        </div>
+        <div class="planet">
+          <img src="Mars.png" alt="Mars">
+          <div class="details">
+            <h3>Mars</h3>
+            <p align="justify">Mars, seringkali dijuluki sebagai "Planet Merah" karena permukaannya yang berwarna kemerahan akibat oksida besi, merupakan planet keempat dari Matahari. Meskipun memiliki kemiripan dengan Bumi dalam hal durasi rotasi dan kemiringan sumbu, kondisi di Mars sangat berbeda. Atmosfer Mars sangat tipis dan sebagian besar terdiri dari karbon dioksida, sehingga tidak dapat menopang kehidupan seperti yang kita kenal. Permukaan Mars dipenuhi dengan kawah, gunung berapi raksasa seperti Olympus Mons (gunung tertinggi di tata surya), dan lembah besar seperti Valles Marineris. Mars juga memiliki dua bulan kecil, Phobos dan Deimos. Para ilmuwan sangat tertarik mempelajari Mars karena planet ini dianggap sebagai kandidat utama untuk mencari tanda-tanda kehidupan masa lalu atau bahkan saat ini, serta sebagai tujuan potensial untuk eksplorasi manusia di masa depan.</p>
+            <button onclick="showPopup('Mars')">Informasi Detail</button>
+          </div>
+        </div>
+        <div class="planet">
+          <img src="Jupiter.png" alt="Jupiter">
+          <div class="details">
+            <h3>Jupiter</h3>
+            <p align="justify">Jupiter adalah planet terbesar di tata surya kita dan sering disebut sebagai "raksasa gas". Jaraknya jauh dari Matahari dibandingkan Bumi, dan memiliki ukuran yang sangat besar, lebih dari 1300 kali volume Bumi. Atmosfer Jupiter sangat tebal dan terdiri sebagian besar dari hidrogen dan helium, mirip dengan komposisi Matahari. Ciri khas Jupiter adalah Bintik Merah Besar, sebuah badai raksasa yang telah berlangsung selama ratusan tahun. Planet ini juga memiliki cincin, meskipun tidak sejelas cincin Saturnus. Jupiter memiliki puluhan bulan, dengan empat bulan terbesarnya, yaitu Io, Europa, Ganymede, dan Callisto, yang dikenal sebagai bulan Galilean. Karena ukurannya yang besar dan gravitasi yang kuat, Jupiter memainkan peran penting dalam menjaga stabilitas tata surya kita. Para ilmuwan sangat tertarik mempelajari Jupiter untuk memahami lebih lanjut tentang pembentukan tata surya dan asal-usul kehidupan.</p>
+            <button onclick="showPopup('Jupiter')">Informasi Detail</button>
+          </div>
+        </div>
+        <div class="planet">
+          <img src="Saturn.png" alt="Saturnus">
+          <div class="details">
+            <h3>Saturnus</h3>
+            <p align="justify">Saturnus adalah planet keenam dari Matahari dan terkenal karena sistem cincinnya yang spektakuler. Sebagai raksasa gas, Saturnus sebagian besar terdiri dari hidrogen dan helium. Cincin Saturnus, yang terdiri dari es dan batuan, membentang ribuan kilometer di atas permukaan planet. Meskipun terlihat indah, cincin Saturnus sebenarnya sangat tipis. Selain cincinnya, Saturnus juga memiliki banyak bulan, dengan Titan sebagai bulan terbesarnya. Titan bahkan memiliki atmosfer yang lebih tebal daripada Bumi dan danau-danau hidrokarbon cair. Atmosfer Saturnus sangat berangin dan memiliki badai besar yang berlangsung selama bertahun-tahun. Karena jaraknya yang jauh dari Matahari, suhu di Saturnus sangat dingin. Dengan ciri-ciri yang unik ini, Saturnus menjadi salah satu objek paling menarik di tata surya kita untuk dipelajari.</p>
+            <button onclick="showPopup('Saturnus')">Informasi Detail</button>
+          </div>
+        </div>
+        <div class="planet">
+          <img src="Uranus.png" alt="Uranus">
+          <div class="details">
+            <h3>Uranus</h3>
+            <p align="justify">Uranus adalah planet ketujuh dari Matahari dan termasuk dalam kategori planet es raksasa. Salah satu keunikan Uranus adalah rotasinya yang sangat miring, hampir sejajar dengan bidang orbitnya. Kondisi ini menyebabkan musim di Uranus sangat ekstrem dan berbeda dengan planet lain di tata surya. Atmosfer Uranus sebagian besar terdiri dari hidrogen, helium, dan metana, yang memberikan warna biru kehijauan pada planet ini. Uranus memiliki sistem cincin, meskipun tidak sejelas cincin Saturnus. Planet ini juga memiliki banyak bulan, dengan beberapa bulan terbesarnya memiliki permukaan yang sangat unik dan kompleks. Karena jaraknya yang jauh dari Matahari, suhu di Uranus sangat dingin. Salah satu hal yang menarik tentang Uranus adalah medan magnetnya yang sangat miring dan tidak berada di pusat planet, berbeda dengan planet-planet lain. Dengan karakteristik yang unik ini, Uranus menjadi objek yang menarik bagi para astronom untuk dipelajari lebih lanjut.</p>
+            <button onclick="showPopup('Uranus')">Informasi Detail</button>
+          </div>
+        </div>
+        <div class="planet">
+          <img src="Neptune.png" alt="Neptunus">
+          <div class="details">
+            <h3>Neptunus</h3>
+            <p align="justify">Neptunus adalah planet kedelapan dan terjauh dari Matahari di tata surya kita. Dikenal sebagai "raksasa es", Neptunus memiliki atmosfer yang sangat dingin dan berangin, serta terdiri sebagian besar dari hidrogen, helium, dan metana. Metana inilah yang memberikan warna biru khas pada planet ini. Sama seperti Uranus, Neptunus memiliki kemiringan sumbu rotasi yang ekstrem, menyebabkan musim yang sangat panjang dan tidak biasa. Neptunus memiliki sistem cincin yang tipis dan gelap, serta beberapa bulan, dengan Triton sebagai bulan terbesarnya. Triton memiliki orbit retrograde yang unik, mengorbit berlawanan dengan rotasi Neptunus. Meskipun jaraknya yang sangat jauh dari Matahari, Neptunus memiliki badai raksasa yang sangat kuat, salah satunya adalah Bintik Gelap Besar yang mirip dengan Bintik Merah Besar di Jupiter. Karena jaraknya yang sangat jauh, Neptunus menjadi salah satu planet yang paling sulit untuk dipelajari, namun tetap menjadi objek yang menarik bagi para astronom.</p>
+            <button onclick="showPopup('Neptunus')">Informasi Detail</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="popup" class="popup hidden">
+    <div class="popup-content">
+      <div class="info">
+        <h3 id="planet-title">Merkurius</h3>
+        <p id="planet-info">Informasi</p>
+        <button onclick="closePopup()">Tutup</button>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <p>&copy; Copyright <script>
+        document.write(new Date().getFullYear())
+      </script> <span style="color: #E5C100;">SolarEd</span>. Dikembangkan oleh Tim <a href="#">Ini aku yang buat</a>.</p>
+  </footer>
+  <script>
+    const popup = document.getElementById("popup");
+    const planetTitle = document.getElementById("planet-title");
+    const planetInfo = document.getElementById("planet-info");
+    const planetData = {
+      Merkurius: {
+        info: "Merkurius adalah planet terkecil di Tata Surya dan yang terdekat dengan Matahari, dengan jarak rata-rata sekitar 57,9 juta kilometer (0,39 AU) dari Matahari. Koordinat orbit Merkurius dalam ruang angkasa mengikuti bentuk elips dengan eksentrisitas sebesar 0,205, menjadikannya orbit paling lonjong di antara planet-planet lain. Planet ini memiliki periode revolusi sekitar 88 hari Bumi, yang berarti satu tahun di Merkurius jauh lebih singkat dibandingkan Bumi. Rotasi planet ini sangat lambat, dengan periode rotasi 58,6 hari Bumi, sehingga satu hari (matahari terbit ke matahari terbit berikutnya) di Merkurius memakan waktu 176 hari Bumi. Diameter Merkurius adalah sekitar 4.880 kilometer, menjadikannya hanya sedikit lebih besar dari Bulan Bumi. Suhu permukaan di planet ini bervariasi secara ekstrem, dari sekitar -173°C di malam hari hingga 427°C di siang hari, karena tidak adanya atmosfer yang signifikan untuk mempertahankan panas. Merkurius memiliki inklinasi orbit sekitar 7 derajat terhadap ekliptika, dengan kepadatan rata-rata 5,43 g/cm³, yang kedua tertinggi setelah Bumi, menunjukkan inti besi yang besar di dalamnya.",
+      },
+      Venus: {
+        info: "Venus adalah planet kedua dari Matahari dengan jarak rata-rata sekitar 108,2 juta kilometer (0,72 AU). Orbit Venus hampir sempurna melingkar dengan eksentrisitas hanya 0,007, yang berarti lintasannya sangat stabil. Planet ini memiliki periode revolusi sekitar 225 hari Bumi, sedangkan periode rotasinya sangat lambat dan berlawanan arah (retrograde), memakan waktu sekitar 243 hari Bumi, sehingga satu hari di Venus lebih panjang dari satu tahunnya. Diameter Venus adalah sekitar 12.104 kilometer, hampir setara dengan Bumi, menjadikannya sering disebut sebagai planet kembar Bumi. Inklinasi orbit Venus terhadap ekliptika hanya 3,4 derajat, menunjukkan orbit yang hampir datar. Suhu permukaannya sangat ekstrem, mencapai rata-rata 465°C, menjadikannya planet terpanas di Tata Surya akibat efek rumah kaca dari atmosfernya yang tebal, yang terdiri dari 96,5% karbon dioksida dan 3,5% nitrogen, dengan tekanan atmosfer sekitar 92 kali lipat tekanan atmosfer Bumi. Venus tidak memiliki satelit alami, dan kepadatan rata-ratanya mencapai 5,24 g/cm³, sedikit lebih rendah dibandingkan Bumi.",
+      },
+      Bumi: {
+        info: "Bumi adalah planet ketiga dari Matahari dengan jarak rata-rata sekitar 149,6 juta kilometer (1 AU), menjadikannya berada di zona layak huni Tata Surya. Orbit Bumi berbentuk elips dengan eksentrisitas rendah, sekitar 0,0167, yang menyebabkan variasi kecil dalam jaraknya dari Matahari sepanjang tahun. Planet ini memiliki periode revolusi selama 365,25 hari, yang mendefinisikan satu tahun kalender. Rotasi Bumi berlangsung selama 23 jam 56 menit 4 detik pada porosnya yang miring sebesar 23,5 derajat terhadap bidang ekliptika, menyebabkan terjadinya pergantian musim. Diameter rata-rata Bumi adalah sekitar 12.742 kilometer, menjadikannya planet terbesar kelima di Tata Surya. Kepadatan rata-rata Bumi mencapai 5,51 g/cm³, tertinggi di antara planet-planet lain, menunjukkan inti logam padat yang dominan besi dan nikel. Inklinasi orbit Bumi terhadap ekliptika adalah 0 derajat, karena orbit Bumi mendefinisikan bidang tersebut. Atmosfer Bumi terdiri dari 78% nitrogen, 21% oksigen, dan sisanya gas-gas lain, yang mendukung kehidupan. Bumi memiliki satu satelit alami, Bulan, yang berjarak rata-rata 384.400 kilometer. Suhu rata-rata permukaan planet ini adalah sekitar 15°C, dengan variasi yang stabil berkat atmosfer dan sirkulasi air di permukaannya.",
+      },
+      Mars: {
+        info: "Mars adalah planet keempat dari Matahari dengan jarak rata-rata sekitar 227,9 juta kilometer (1,52 AU). Orbit Mars berbentuk elips dengan eksentrisitas 0,0934, membuat variasi jarak antara titik terdekat (perihelion) sekitar 206,6 juta kilometer dan titik terjauh (aphelion) sekitar 249,2 juta kilometer dari Matahari. Planet ini memiliki periode revolusi selama 687 hari Bumi, atau sekitar 1,88 tahun Bumi, sementara periode rotasinya hampir mirip Bumi, yaitu 24 jam 37 menit. Diameter Mars sekitar 6.779 kilometer, menjadikannya sekitar setengah ukuran Bumi. Inklinasi sumbu rotasi Mars adalah 25,2 derajat, menyebabkan adanya siklus musim seperti di Bumi, meskipun lebih panjang karena orbitnya yang lebih jauh. Atmosfer Mars sangat tipis, terdiri dari 95% karbon dioksida, 2,7% nitrogen, dan jejak gas lainnya, dengan tekanan hanya sekitar 0,6% dari tekanan atmosfer Bumi. Suhu permukaan Mars bervariasi antara -140°C hingga 20°C, dengan suhu rata-rata sekitar -63°C. Kepadatan rata-rata Mars adalah 3,93 g/cm³, lebih rendah dari Bumi, menunjukkan komposisi batuan dengan inti logam yang lebih kecil. Mars memiliki dua satelit alami kecil, yaitu Phobos dan Deimos, yang berbentuk tidak beraturan dan mengorbit planet ini dalam waktu singkat.",
+      },
+      Jupiter: {
+        info: "Jupiter adalah planet kelima dari Matahari dan merupakan planet terbesar di Tata Surya, dengan jarak rata-rata sekitar 778,5 juta kilometer (5,2 AU) dari Matahari. Orbit Jupiter berbentuk elips dengan eksentrisitas sekitar 0,0489, sehingga jarak perihelionnya sekitar 740,5 juta kilometer dan aphelionnya sekitar 816,6 juta kilometer. Jupiter memiliki periode revolusi selama 11,86 tahun Bumi, sedangkan periode rotasinya sangat cepat, hanya sekitar 9 jam 55 menit, menjadikannya planet dengan rotasi tercepat di Tata Surya. Diameter Jupiter mencapai sekitar 142.984 kilometer, atau lebih dari 11 kali diameter Bumi. Planet ini memiliki inklinasi sumbu rotasi sebesar 3,13 derajat, sehingga tidak mengalami perubahan musim yang signifikan. Jupiter terdiri terutama dari hidrogen (89%) dan helium (10%), menyerupai komposisi bintang, dengan kepadatan rata-rata 1,33 g/cm³. Tekanan atmosfer yang ekstrem menciptakan pita-pita awan berwarna serta Bintik Merah Besar, badai raksasa yang telah berlangsung selama berabad-abad. Jupiter memiliki medan magnet yang sangat kuat, 20.000 kali lebih kuat dibandingkan Bumi. Planet ini memiliki 92 satelit alami yang diketahui, dengan empat terbesar disebut satelit Galilean: Io, Europa, Ganymede, dan Callisto, yang pertama kali ditemukan oleh Galileo Galilei.",
+      },
+      Saturnus: {
+        info: "Saturnus adalah planet keenam dari Matahari dan terkenal dengan sistem cincin spektakulernya. Jarak rata-rata Saturnus dari Matahari adalah sekitar 1,43 miliar kilometer (9,5 AU). Orbit Saturnus memiliki eksentrisitas sekitar 0,056, sehingga jaraknya bervariasi antara perihelion 1,35 miliar kilometer dan aphelion 1,5 miliar kilometer. Saturnus memiliki periode revolusi selama 29,5 tahun Bumi, sedangkan rotasinya sangat cepat, hanya sekitar 10 jam 33 menit, menjadikannya planet dengan rotasi tercepat kedua setelah Jupiter. Diameter Saturnus mencapai sekitar 120.536 kilometer, atau sekitar 9,5 kali diameter Bumi, menjadikannya planet terbesar kedua di Tata Surya. Kepadatan rata-rata Saturnus hanya 0,69 g/cm³, lebih rendah dari air, yang menunjukkan bahwa planet ini sebagian besar terdiri dari hidrogen (96%) dan helium (3%). Inklinasi sumbu rotasinya sekitar 26,7 derajat, sehingga Saturnus mengalami perubahan musim yang signifikan dalam periode panjang. Cincin Saturnus terdiri dari partikel es, debu, dan batuan kecil, membentang hingga 282.000 kilometer dari pusat planet tetapi hanya setebal beberapa kilometer. Saturnus memiliki medan magnet yang kuat, meskipun lebih lemah dibandingkan Jupiter. Hingga saat ini, Saturnus diketahui memiliki 146 satelit alami, dengan yang terbesar adalah Titan, yang memiliki atmosfer tebal dan ukuran lebih besar dari planet Merkurius.",
+      },
+      Uranus: {
+        info: "Uranus adalah planet ketujuh dari Matahari dengan jarak rata-rata sekitar 2,87 miliar kilometer (19,2 AU). Orbit Uranus memiliki eksentrisitas rendah, sekitar 0,046, sehingga jaraknya bervariasi antara 2,74 miliar kilometer (perihelion) dan 3,01 miliar kilometer (aphelion). Uranus menyelesaikan satu periode revolusi mengelilingi Matahari dalam waktu 84 tahun Bumi, sementara periode rotasinya adalah 17 jam 14 menit. Uniknya, sumbu rotasi Uranus memiliki kemiringan ekstrem sekitar 97,8 derajat, menyebabkan planet ini berputar hampir menggelinding di orbitnya, sehingga mengalami musim ekstrem yang berlangsung selama 21 tahun Bumi. Uranus memiliki diameter sekitar 50.724 kilometer, menjadikannya planet terbesar ketiga di Tata Surya. Kepadatan rata-rata Uranus adalah 1,27 g/cm³, menunjukkan komposisi utamanya berupa es air, metana, dan amonia, dengan atmosfer yang terdiri dari hidrogen (82%), helium (15%), dan metana (2,3%), yang memberikan warna biru kehijauan khasnya. Suhu di atmosfer atas Uranus sangat dingin, dengan rata-rata mencapai -224°C, menjadikannya planet terdingin di Tata Surya. Uranus juga memiliki sistem cincin tipis yang terdiri dari partikel gelap kecil serta 27 satelit alami yang diketahui, di antaranya Titania, Oberon, Umbriel, Ariel, dan Miranda.",
+      },
+      Neptunus: {
+        info: "Neptunus adalah planet kedelapan dan terjauh dari Matahari dengan jarak rata-rata sekitar 4,5 miliar kilometer (30,1 AU). Orbit Neptunus memiliki eksentrisitas sebesar 0,0086, sehingga jaraknya bervariasi sedikit antara 4,46 miliar kilometer (perihelion) dan 4,54 miliar kilometer (aphelion). Neptunus menyelesaikan satu revolusi mengelilingi Matahari dalam waktu 164,8 tahun Bumi, menjadikannya planet dengan periode revolusi terpanjang di Tata Surya. Sementara itu, periode rotasi Neptunus adalah sekitar 16 jam 6 menit. Diameter planet ini mencapai 49.244 kilometer, sedikit lebih kecil dibanding Uranus, tetapi lebih padat dengan kepadatan rata-rata 1,64 g/cm³. Atmosfer Neptunus didominasi oleh hidrogen (80%), helium (19%), dan jejak metana (1%), yang memberikan warna biru cerah khasnya karena penyerapan cahaya merah oleh metana. Suhu rata-rata di atmosfernya mencapai sekitar -214°C, dengan angin kencang yang dapat mencapai kecepatan lebih dari 2.100 km/jam, menjadikannya planet dengan angin tercepat di Tata Surya. Medan magnet Neptunus sangat miring, dengan kemiringan 47 derajat terhadap sumbu rotasinya. Neptunus memiliki sistem cincin tipis dan samar yang terdiri dari partikel debu serta 14 satelit alami yang diketahui, dengan Triton sebagai satelit terbesar yang memiliki orbit retrograde dan aktivitas geologis aktif.",
+      },
+      Solar: {
+        info: "Tata Surya adalah sistem bintang yang terdiri dari Matahari dan segala benda langit yang terikat gravitasi padanya, termasuk delapan planet, bulan, asteroid, komet, dan debu ruang angkasa. Matahari, pusat Tata Surya, memiliki massa sekitar 1,99 × 10^30 kg dan terletak di koordinat galaksi sekitar 26.000 tahun cahaya dari pusat Bima Sakti, dalam lengan Orion. Jarak rata-rata Matahari ke pusat galaksi adalah sekitar 8,5 kpc (kiloparsek). Tata Surya terletak di galaksi Bima Sakti, yang memiliki diameter sekitar 100.000 tahun cahaya. Planet-planet di Tata Surya mengorbit Matahari dalam orbit elips dengan eksentrisitas rata-rata sekitar 0,0167 untuk orbit Bumi, yang menunjukkan bahwa jarak antar planet dan Matahari sedikit bervariasi. Semua planet mengorbit dalam bidang yang hampir sama, disebut bidang ekliptika, dengan kemiringan rata-rata sekitar 7 derajat terhadap sumbu rotasi Matahari. Selain planet, Tata Surya juga terdiri dari asteroid belt di antara Mars dan Jupiter, serta wilayah Kuiper Belt dan cloud Oort yang berisi komet dan objek-objek kecil lainnya. Tata Surya memiliki lebih dari 200 objek yang lebih besar dari 100 km, termasuk planet kerdil seperti Pluto, serta berbagai satelit alami yang mengelilingi planet-planet besar.",
+      },
+      Tentang: {
+        info: "Web ini ditujukan untuk menyelesaikan mata kuliah Fisika Modern, web ini berisi tentang informasi seputar tata surya, matahari dan 8 planet utama.",
+      },
+    };
+
+    function showPopup(planet) {
+      const data = planetData[planet];
+      planetTitle.textContent = planet;
+      planetInfo.textContent = data.info;
+      popup.classList.remove("hidden");
+      popup.style.animation = "fadeIn 0.5s forwards";
+      const popupContent = popup.querySelector(".popup-content");
+      popupContent.style.animation = "contentFadeIn 0.5s 0.2s forwards";
+    }
+
+    function closePopup() {
+      const popupContent = popup.querySelector(".popup-content");
+      popupContent.style.animation = "contentFadeIn 0.5s reverse forwards";
+      popup.style.animation = "fadeOut 0.5s forwards";
+      setTimeout(() => {
+        popup.classList.add("hidden");
+      }, 500);
+    }
+    popup.addEventListener("click", (event) => {
+      if (event.target === popup) {
+        closePopup();
+      }
+    });
+    window.addEventListener("load", () => {
+      const intro = document.getElementById("intro");
+      intro.addEventListener("animationend", () => {
+        intro.remove();
+      });
+    });
+  </script>
+  <script>
+    const canvas = document.getElementById("orbitCanvas");
+    const ctx = canvas.getContext("2d");
+    const AU = 150000000;
+    const mercuryDistance = 0.39 * AU;
+    const mercuryOrbitalPeriod = 88;
+    const G = 6.67430e-11;
+    const M = 1.989e30;
+    const mercuryMass = 3.3011e23;
+    let centerX, centerY, radius;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth * 0.3;
+      canvas.height = window.innerHeight * 0.4;
+      centerX = canvas.width / 2;
+      centerY = canvas.height / 2;
+      radius = mercuryDistance / 1000000;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    let angle = 0;
+    const angularSpeed = (2 * Math.PI) / mercuryOrbitalPeriod;
+    let mercuryX, mercuryY;
+    let mercurySpeed, angularMomentum, currentDistance;
+    let lastUpdateTime = Date.now();
+    const indicator = document.getElementById('indicator');
+    const speedIndicator = document.getElementById('speedIndicator');
+    const momentumIndicator = document.getElementById('momentumIndicator');
+    const distanceIndicator = document.getElementById('distanceIndicator');
+    const speedSlider = document.getElementById('speedSlider');
+    const timeUnitIndicator = document.getElementById('timeUnitIndicator');
+    const resetButton = document.getElementById('resetButton');
+    let currentSpeed = 1;
+
+    function formatNumberWithCommas(number) {
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function throttle(func, limit) {
+      let lastCall = 0;
+      return function(...args) {
+        const now = new Date().getTime();
+        if (now - lastCall >= limit) {
+          lastCall = now;
+          return func(...args);
+        }
+      };
+    }
+    const updateIndicators = throttle(function() {
+      const mercuryPositionInDegrees = (angle / Math.PI) * 180;
+      indicator.innerHTML = `Mercury Position: ${mercuryPositionInDegrees.toFixed(2)}°`;
+      speedIndicator.innerHTML = `Speed: ${formatNumberWithCommas(mercurySpeed.toFixed(2))} km/s`;
+      momentumIndicator.innerHTML = `Angular Momentum: ${formatNumberWithCommas(angularMomentum.toFixed(2))} kg·km²/s`;
+      distanceIndicator.innerHTML = `Distance: ${formatNumberWithCommas(currentDistance.toFixed(0))} million km`;
+    }, 100);
+
+    function update() {
+      const now = Date.now();
+      const deltaTime = (now - lastUpdateTime) / 1000;
+      lastUpdateTime = now;
+      const realOrbitalPeriod = mercuryOrbitalPeriod * 24 * 3600;
+      const adjustedAngularSpeed = (2 * Math.PI) / realOrbitalPeriod;
+      angle += adjustedAngularSpeed * deltaTime * currentSpeed;
+      if (angle >= 2 * Math.PI) {
+        angle = 0;
+      }
+      mercuryX = centerX + Math.cos(angle) * radius;
+      mercuryY = centerY + Math.sin(angle) * radius;
+      mercurySpeed = Math.sqrt((G * M) / mercuryDistance);
+      mercurySpeed *= currentSpeed;
+      mercurySpeed /= 1000;
+      angularMomentum = mercuryMass * mercurySpeed * mercuryDistance / 1000;
+      currentDistance = mercuryDistance / 1000;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 30, 0, 2 * Math.PI);
+      ctx.fillStyle = "yellow";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(mercuryX, mercuryY, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = "gray";
+      ctx.fill();
+      updateIndicators();
+      requestAnimationFrame(update);
+    }
+    speedSlider.addEventListener('input', (e) => {
+      currentSpeed = parseFloat(e.target.value);
+      timeUnitIndicator.innerHTML = `Speed: ${formatNumberWithCommas(currentSpeed.toFixed(1))}x`;
+    });
+    resetButton.addEventListener('click', () => {
+      currentSpeed = 1;
+      speedSlider.value = 1;
+      timeUnitIndicator.innerHTML = `Speed: ${formatNumberWithCommas(1)}x`;
+    });
+    update();
+  </script>
+</body>
+
+</html>
